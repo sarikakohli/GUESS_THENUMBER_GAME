@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Guess The Number Game</title>
+<style>
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 10px #00ffea; }
+    50% { box-shadow: 0 0 25px #00ffe1; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e0f7fa;
+  }
+
+  .game-container {
+    background: #00303f;
+    padding: 40px 50px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 255, 255, 0.3);
+    width: 350px;
+    text-align: center;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  h1 {
+    margin-bottom: 25px;
+    font-weight: 900;
+    font-size: 2.4rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px #00ffe1;
+  }
+
+  .number-display {
+    font-size: 4rem;
+    background: #00ffe1;
+    color: #00303f;
+    font-weight: 900;
+    padding: 15px 0;
+    border-radius: 15px;
+    margin: 25px auto;
+    width: 120px;
+    user-select: none;
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 0 10px #00ffe1 inset;
+    background: #004a61;
+    color: #e0f7fa;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+  }
+
+  input[type="number"]:focus {
+    box-shadow: 0 0 18px #00fff5 inset;
+  }
+
+  button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 15px 0;
+    font-size: 1.2rem;
+    font-weight: 900;
+    background: #00ffe1;
+    border: none;
+    border-radius: 15px;
+    color: #00303f;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 255, 255, 0.5);
+    transition: background 0.3s ease, transform 0.15s ease;
+  }
+
+  button:hover {
+    background: #00ccb1;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  .message {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    min-height: 32px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: #00ffe1;
+    transition: color 0.4s ease;
+  }
+
+  .scoreboard {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #00fff5;
+  }
+
+  .scoreboard div {
+    background: #005c70;
+    padding: 12px 18px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 255, 255, 0.4);
+    min-width: 120px;
+    user-select: none;
+  }
+
+  .reset-btn {
+    margin-top: 30px;
+    background: transparent;
+    color: #00ffe1;
+    border: 2px solid #00ffe1;
+    font-weight: 700;
+    padding: 10px 0;
+    border-radius: 12px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px #00ffe1;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  .reset-btn:hover {
+    background: #00ffe1;
+    color: #00303f;
+  }
+
+  @media (max-width: 400px) {
+    .game-container {
+      width: 90vw;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    .number-display {
+      font-size: 3rem;
+      width: 90px;
+    }
+
+    button, .reset-btn {
+      font-size: 1rem;
+      padding: 12px 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1>Guess The Number</h1>
+  <div class="number-display" id="numberDisplay">?</div>
+
+  <label for="guessInput">Enter your guess (1-100):</label>
+  <input type="number" id="guessInput" min="1" max="100" placeholder="Your guess here..." />
+
+  <button id="checkBtn">Check</button>
+
+  <div class="message" id="message"></div>
+
+  <div class="scoreboard">
+    <div>Score: <span id="score">20</span></div>
+    <div>Highscore: <span id="highscore">0</span></div>
+  </div>
+
+  <button class="reset-btn" id="resetBtn">Restart Game</button>
+</div>
+
+<script>
+  let secretNumber;
+  let score;
+  let highscore = 0;
+
+  const numberDisplay = document.getElementById('numberDisplay');
+  const guessInput = document.getElementById('guessInput');
+  const checkBtn = document.getElementById('checkBtn');
+  const message = document.getElementById('message');
+  const scoreEl = document.getElementById('score');
+  const highscoreEl = document.getElementById('highscore');
+  const resetBtn = document.getElementById('resetBtn');
+
+  function initGame() {
+    secretNumber = Math.floor(Math.random() * 100) + 1;
+    score = 20;
+    scoreEl.textContent = score;
+    numberDisplay.textContent = '?';
+    guessInput.value = '';
+    message.textContent = 'Start guessing...';
+    message.style.color = '#00ffe1';
+    guessInput.disabled = false;
+    checkBtn.disabled = false;
+  }
+
+  function showMessage(text, color = '#00ffe1') {
+    message.textContent = text;
+    message.style.color = color;
+  }
+
+  checkBtn.addEventListener('click', () => {
+    const guess = Number(guessInput.value);
+
+    if (!guess || guess < 1 || guess > 100) {
+      showMessage('🚫 Please enter a number between 1 and 100!', '#ff4c4c');
+      return;
+    }
+
+    if (guess === secretNumber) {
+      numberDisplay.textContent = secretNumber;
+      showMessage('🎉 Correct Number!', '#00ff72');
+      if (score > highscore) {
+        highscore = score;
+        highscoreEl.textContent = highscore;
+      }
+      guessInput.disabled = true;
+      checkBtn.disabled = true;
+      numberDisplay.style.animation = 'pulse 1.5s ease infinite';
+      return;
+    }
+
+    if (score > 1) {
+      showMessage(guess > secretNumber ? '📈 Too high!' : '📉 Too low!', '#ffdd59');
+      score--;
+      scoreEl.textContent = score;
+    } else {
+      showMessage('💥 You lost the game!', '#ff4c4c');
+      scoreEl.textContent = 0;
+      numberDisplay.textContent = secretNumber;
+      guessInput.disabled = true;
+      checkBtn.disabled = true;
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    numberDisplay.style.animation = 'none';
+    initGame();
+  });
+
+  // Initialize game on load
+  initGame();
+</script>
+
+</body>
+</html>
